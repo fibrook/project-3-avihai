@@ -120,6 +120,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_email_by_username: { Args: { _username: string }; Returns: string }
       get_vacation_follower_counts: {
         Args: never
         Returns: {

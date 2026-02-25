@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Compass } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function LoginPage() {
   const { user, loading, signIn } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -19,9 +20,21 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+
+    // Look up email by username
+    const { data: email, error: lookupError } = await supabase.rpc("get_email_by_username", {
+      _username: username,
+    });
+
+    if (lookupError || !email) {
+      toast.error("Invalid username or password");
+      setSubmitting(false);
+      return;
+    }
+
     const { error } = await signIn(email, password);
     setSubmitting(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error("Invalid username or password");
   }
 
   return (
@@ -54,8 +67,8 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+              <Label htmlFor="username">Username</Label>
+              <Input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your username" required />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
