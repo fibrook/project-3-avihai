@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { Vacation } from "@/hooks/useVacations";
+import { Upload, Link as LinkIcon } from "lucide-react";
+import type { Vacation } from "@/store/vacationsSlice";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface VacationFormModalProps {
@@ -24,6 +26,9 @@ export function VacationFormModal({ open, onClose, onSubmit, vacation }: Vacatio
     price: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imageMode, setImageMode] = useState<"url" | "upload">("upload");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (vacation) {
@@ -39,6 +44,40 @@ export function VacationFormModal({ open, onClose, onSubmit, vacation }: Vacatio
       setForm({ destination: "", description: "", image_url: "", start_date: "", end_date: "", price: "" });
     }
   }, [vacation, open]);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPG, PNG, WebP, and GIF images are allowed");
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const fileName = `${crypto.randomUUID()}.${ext}`;
+    const filePath = `vacations/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from("vacation-images")
+      .upload(filePath, file);
+
+    if (error) {
+      toast.error("Failed to upload image");
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("vacation-images")
+      .getPublicUrl(filePath);
+
+    setForm((f) => ({ ...f, image_url: urlData.publicUrl }));
+    setUploading(false);
+    toast.success("Image uploaded!");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -83,10 +122,66 @@ export function VacationFormModal({ open, onClose, onSubmit, vacation }: Vacatio
             <Label htmlFor="description">Description *</Label>
             <Textarea id="description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="An amazing getaway..." rows={3} />
           </div>
+
+          {/* Image: toggle between upload and URL */}
           <div>
-            <Label htmlFor="image_url">Image URL</Label>
-            <Input id="image_url" value={form.image_url} onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))} placeholder="https://..." />
+            <div className="mb-2 flex items-center justify-between">
+              <Label>Image</Label>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant={imageMode === "upload" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setImageMode("upload")}
+                  className="h-7 gap-1 text-xs"
+                >
+                  <Upload className="h-3 w-3" /> Upload
+                </Button>
+                <Button
+                  type="button"
+                  variant={imageMode === "url" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setImageMode("url")}
+                  className="h-7 gap-1 text-xs"
+                >
+                  <LinkIcon className="h-3 w-3" /> URL
+                </Button>
+              </div>
+            </div>
+
+            {imageMode === "upload" ? (
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? "Uploading..." : "Choose Image File"}
+                </Button>
+                {form.image_url && (
+                  <div className="mt-2 overflow-hidden rounded-lg border border-border">
+                    <img src={form.image_url} alt="Preview" className="h-32 w-full object-cover" />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Input
+                value={form.image_url}
+                onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
+                placeholder="https://..."
+              />
+            )}
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="start_date">Start Date *</Label>
@@ -103,7 +198,7 @@ export function VacationFormModal({ open, onClose, onSubmit, vacation }: Vacatio
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting || uploading}>
               {submitting ? "Saving..." : vacation ? "Update" : "Add Vacation"}
             </Button>
           </div>
