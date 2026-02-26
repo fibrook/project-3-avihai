@@ -4,13 +4,13 @@
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React (TypeScript), Tailwind CSS, Shadcn UI |
-| State Management | Redux Toolkit |
-| Backend & Auth | Supabase (PostgreSQL, Auth, Storage, Realtime) |
-| Charts | Recharts |
-| Build Tool | Vite |
+| Layer            | Technology                                     |
+| ---------------- | ---------------------------------------------- |
+| Frontend         | React (TypeScript), Tailwind CSS, Shadcn UI    |
+| State Management | Redux Toolkit                                  |
+| Backend & Auth   | Supabase (PostgreSQL, Auth, Storage, Realtime) |
+| Charts           | Recharts                                       |
+| Build Tool       | Vite                                           |
 
 ## Features
 
@@ -23,12 +23,12 @@
 
 ## Database Schema
 
-| Table | Description |
-|-------|-------------|
-| `profiles` | User profile data (first name, last name, unique username) |
-| `vacations` | Vacation listings (destination, dates, price, image, description) |
-| `followers` | Many-to-many relationship between users and vacations |
-| `user_roles` | Role assignments (admin / user) |
+| Table        | Description                                                       |
+| ------------ | ----------------------------------------------------------------- |
+| `profiles`   | User profile data (first name, last name, unique username)        |
+| `vacations`  | Vacation listings (destination, dates, price, image, description) |
+| `followers`  | Many-to-many relationship between users and vacations             |
+| `user_roles` | Role assignments (admin / user)                                   |
 
 **Key Functions:** `handle_new_user` (trigger), `has_role`, `get_email_by_username`, `get_vacation_follower_counts`
 
@@ -79,6 +79,7 @@ All prompts exchanged during development, in chronological order.
 > Generate 30 vacations worldwide with images, 10 test users, and random follow relationships for demo purposes.
 
 **Result:** Seeded via temporary Edge Function:
+
 - **30 vacations** — real destinations (Paris, Tokyo, Santorini, Bali, etc.) with Unsplash images
 - **10 users** — `sarah_c`, `david_l`, `maya_b`, `yossi_k`, `noa_r`, `amit_s`, `liora_g`, `oren_m`, `shira_d`, `eyal_p` (password: `Test1234!`)
 - **103 follow relationships** — randomly distributed across users and vacations
@@ -114,4 +115,4 @@ npm run dev
 
 ## Deployment
 
-Open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) → Share → Publish.
+Open [Lovable](https://lovable.dev/projects/2bd77f42-5594-40b3-9b99-5377bf72bfb4) → Share → Publish.
