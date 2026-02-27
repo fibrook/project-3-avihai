@@ -3,12 +3,17 @@ import { useVacations } from "@/hooks/useVacations";
 import { VacationCard } from "@/components/VacationCard";
 import { VacationFilters } from "@/components/VacationFilters";
 import { AppNavbar } from "@/components/AppNavbar";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { RefreshCw } from "lucide-react";
 
 const MIN_PRICE = 0;
 const MAX_PRICE = 10000;
 
 export default function Index() {
-  const { vacations, loading, toggleFollow } = useVacations();
+  const { vacations, loading, toggleFollow, refetch } = useVacations();
+  const isMobile = useIsMobile();
+  const { pulling, pullDistance, onTouchStart, onTouchMove, onTouchEnd, threshold } = usePullToRefresh(refetch);
   const [search, setSearch] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
 
@@ -22,8 +27,26 @@ export default function Index() {
   }, [vacations, search, priceRange]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      onTouchStart={isMobile ? onTouchStart : undefined}
+      onTouchMove={isMobile ? onTouchMove : undefined}
+      onTouchEnd={isMobile ? onTouchEnd : undefined}
+    >
       <AppNavbar />
+
+      {/* Pull-to-refresh indicator */}
+      {isMobile && pulling && (
+        <div
+          className="flex items-center justify-center overflow-hidden transition-all"
+          style={{ height: pullDistance }}
+        >
+          <RefreshCw
+            className={`h-5 w-5 text-muted-foreground transition-transform ${pullDistance >= threshold ? "text-primary animate-spin" : ""}`}
+          />
+        </div>
+      )}
+
       <main className="container mx-auto px-4 py-6 sm:py-8">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Discover Vacations</h1>
