@@ -24,10 +24,10 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Discover Vacations</h1>
-          <p className="mt-1 text-muted-foreground">Follow the destinations you love</p>
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Discover Vacations</h1>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">Follow the destinations you love</p>
         </div>
 
         <VacationFilters
@@ -40,9 +40,9 @@ export default function Index() {
         />
 
         {loading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-72 animate-pulse rounded-xl bg-muted sm:h-80" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -51,7 +51,7 @@ export default function Index() {
             <p className="text-sm">Try adjusting your search or price range.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((v) => (
               <VacationCard key={v.id} vacation={v} mode="user" onToggleFollow={toggleFollow} />
             ))}
