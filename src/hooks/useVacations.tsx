@@ -2,7 +2,7 @@ import { useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchVacations } from "@/store/vacationsSlice";
+import { fetchVacations, toggleFollowOptimistic } from "@/store/vacationsSlice";
 import type { Vacation } from "@/store/vacationsSlice";
 
 export type { Vacation } from "@/store/vacationsSlice";
@@ -39,10 +39,16 @@ export function useVacations() {
     const vacation = vacations.find((v) => v.id === vacationId);
     if (!vacation) return;
 
-    if (vacation.is_following) {
-      await supabase.from("followers").delete().eq("vacation_id", vacationId).eq("user_id", user.id);
-    } else {
-      await supabase.from("followers").insert({ vacation_id: vacationId, user_id: user.id });
+    // Optimistic update
+    dispatch(toggleFollowOptimistic(vacationId));
+
+    const { error } = vacation.is_following
+      ? await supabase.from("followers").delete().eq("vacation_id", vacationId).eq("user_id", user.id)
+      : await supabase.from("followers").insert({ vacation_id: vacationId, user_id: user.id });
+
+    if (error) {
+      // Revert on failure
+      dispatch(toggleFollowOptimistic(vacationId));
     }
   }
 

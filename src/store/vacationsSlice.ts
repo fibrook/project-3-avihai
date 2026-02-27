@@ -54,7 +54,15 @@ export const fetchVacations = createAsyncThunk(
 const vacationsSlice = createSlice({
   name: "vacations",
   initialState,
-  reducers: {},
+  reducers: {
+    toggleFollowOptimistic(state, action: PayloadAction<string>) {
+      const vacation = state.items.find((v) => v.id === action.payload);
+      if (vacation) {
+        vacation.is_following = !vacation.is_following;
+        vacation.follower_count += vacation.is_following ? 1 : -1;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchVacations.pending, (state) => {
@@ -69,5 +77,5 @@ const vacationsSlice = createSlice({
       });
   },
 });
-
+export const { toggleFollowOptimistic } = vacationsSlice.actions;
 export default vacationsSlice.reducer;
