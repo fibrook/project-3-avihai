@@ -22,6 +22,7 @@ export function VacationCard({ vacation, mode, onToggleFollow, onEdit, onDelete 
           alt={vacation.destination}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
+          onError={(e) => { e.currentTarget.src = defaultImage; }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
