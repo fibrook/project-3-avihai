@@ -23,7 +23,7 @@ export function VacationFilters({
   const hasFilters = search !== "" || priceRange[0] !== minPrice || priceRange[1] !== maxPrice;
 
   return (
-    <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-end">
+    <div className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-card p-3 sm:mb-6 sm:flex-row sm:items-end sm:gap-4 sm:p-4">
       {/* Search */}
       <div className="flex-1 space-y-1.5">
         <label className="text-sm font-medium text-muted-foreground">Search destination</label>

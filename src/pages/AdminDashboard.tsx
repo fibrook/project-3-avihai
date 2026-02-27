@@ -51,26 +51,26 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-            <p className="mt-1 text-muted-foreground">Manage all vacations</p>
+            <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Admin Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage all vacations</p>
           </div>
-          <Button onClick={handleAdd} className="gap-2">
+          <Button onClick={handleAdd} className="gap-2 self-start sm:self-auto">
             <Plus className="h-4 w-4" />
             Add Vacation
           </Button>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-72 animate-pulse rounded-xl bg-muted sm:h-80" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {vacations.map((v) => (
               <VacationCard key={v.id} vacation={v} mode="admin" onEdit={handleEdit} onDelete={(id) => setDeleteId(id)} />
             ))}
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
         <VacationFormModal open={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} vacation={editing} />
 
         <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
-          <AlertDialogContent>
+          <AlertDialogContent className="mx-4 max-w-[calc(100vw-2rem)] sm:mx-auto sm:max-w-lg">
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Vacation?</AlertDialogTitle>
               <AlertDialogDescription>
