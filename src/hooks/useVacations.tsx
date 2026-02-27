@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -8,6 +8,7 @@ import type { Vacation } from "@/store/vacationsSlice";
 export type { Vacation } from "@/store/vacationsSlice";
 
 export function useVacations() {
+  const skipRealtimeRef = useRef(false);
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const vacations = useAppSelector((state) => state.vacations.items);
@@ -26,7 +27,13 @@ export function useVacations() {
     const channel = supabase
       .channel("vacations-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "vacations" }, () => refetch())
-      .on("postgres_changes", { event: "*", schema: "public", table: "followers" }, () => refetch())
+      .on("postgres_changes", { event: "*", schema: "public", table: "followers" }, () => {
+        if (skipRealtimeRef.current) {
+          skipRealtimeRef.current = false;
+          return;
+        }
+        refetch();
+      })
       .subscribe();
 
     return () => {
@@ -39,7 +46,8 @@ export function useVacations() {
     const vacation = vacations.find((v) => v.id === vacationId);
     if (!vacation) return;
 
-    // Optimistic update
+    // Skip the next realtime refetch since we're doing optimistic update
+    skipRealtimeRef.current = true;
     dispatch(toggleFollowOptimistic(vacationId));
 
     const { error } = vacation.is_following
